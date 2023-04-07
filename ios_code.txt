@@ -1,0 +1,2007 @@
+
+『プログラマーにおくるiOSアプリ開発の入門書』
+※ 書籍名は予定です。変わる場合もあり。
+※ 2023年4月頃予定。
+のサンプルコードです。
+
+全てのコードは載せてません。
+比較的、長めのコードのみアップしてます。
+
+行頭の「#」で階層分けしてます。　
+マークダウンでアウトライン表示にすると移動しやすいかと思います。
+
+# 第２章　基本
+
+## テキストフィールド
+
+## ●Enter押下時のハンドリング
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var inputText = ""
+    var body: some View {
+        VStack{
+            TextField("何か入力してください",text: $inputText)
+                .padding()
+                .onSubmit {
+                    print("バリデート等の処理")
+                }
+            Text("入力されたテキスト：\(inputText)") // 3
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+## シンボル
+### ●ライブラリ
+
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            
+            Image(systemName: "play")
+            
+            Image(systemName: "play")
+                .imageScale(.large)
+                .foregroundColor(.green)
+            
+            Button(action: {
+                // 処理は略
+            }){
+                Text("Play")
+                Image(systemName: "play")
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+## ボタン
+
+### ●分岐処理
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var playFlag = false // 1
+    var body: some View {
+        VStack {
+            Button(action: {
+                playFlag.toggle() // 2
+            }){
+                if(playFlag){ // 3
+                    Text("Play")
+                    Image(systemName: "play.circle")
+                    
+                }else{
+                    Text("Stop")
+                    Image(systemName: "stop.circle")
+                }
+            }
+            .padding()
+            .border(Color.blue, width: 2)
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+## ForEach
+
+### ●Identifiableプロトコル
+
+import SwiftUI
+
+struct Menu: Identifiable {
+    var id = UUID()
+    var name : String
+}
+
+struct ContentView: View {
+    let menus = [ Menu(name: "おにぎり"),
+                  Menu(name: "サンドイッチ"),
+                  Menu(name: "唐揚げ") ]
+    
+    var body: some View {
+        VStack {
+            ForEach(menus) { menu in
+                Text("メニュー：\(menu.name)")
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+## リストビュー
+
+### ●応用編
+
+import SwiftUI
+
+struct Menu: Identifiable {
+    var id = UUID()
+    var menu_id : Int
+    var name : String
+}
+
+func inCart(_ menu_id: Int){
+    print("処理：\(menu_id)")
+}
+
+struct ContentView: View {
+    let menus = [ Menu(menu_id: 1, name: "おにぎり"),
+                  Menu(menu_id: 2, name: "サンドイッチ"),
+                  Menu(menu_id: 3, name: "唐揚げ") ]
+    
+    var body: some View {
+        VStack {
+            List(menus){ menu in
+                HStack{
+                    Text(menu.name)
+                    Button(action: {
+                        inCart(menu.menu_id)
+                    }){
+                        Image(systemName: "cart")
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+# 第３章　アラート
+
+## アラート
+
+### ●アラート
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var isShowAlert = false // 1
+    var body: some View {
+        VStack {
+            Button(action: { // 2
+                isShowAlert = true
+            }){
+                Text("アラートを表示")
+            }.alert("タイトル", isPresented: $isShowAlert) { // 3
+                // actions
+            } message: {
+                Text("メッセージ")
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+### ●使い方
+
+import SwiftUI
+
+func myFunc() -> Int { // 1
+    return Int.random(in:-1...1)
+}
+
+struct ContentView: View {
+    @State var isSuccess = false // 2
+    @State var isError = false // 3
+    
+    var body: some View {
+        VStack {
+            Button(action: {
+                let res = myFunc() // 1
+                // 0以上なら成功とする
+                if res >= 0 {
+                    isSuccess = true
+                }else{
+                    isError = true
+                }
+            }){
+                Text("処理をする")
+            }.alert("成功", isPresented: $isSuccess) { // 2
+                // actions
+            } message: {
+                Text("成功しました")
+            }
+            .alert("失敗", isPresented: $isError) { // 3
+                // actions
+            } message: {
+                Text("失敗しました")
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+### ●アラートのボタン
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var isShowAlert = false
+    var body: some View {
+        VStack {
+            Button(action: {
+                isShowAlert = true
+            }){
+                Text("アラートを表示")
+            }.alert("確認", isPresented: $isShowAlert) {
+                Button("やめておく", role: .cancel) { // 1
+                    // ボタン押下時の処理
+                }
+                Button("確定する") { // 2
+                    // ボタン押下時の処理
+                }
+            } message: {
+                Text("本当に確定してもよろしいですか？")
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+### ●ボタンが３つ以上
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var isShowAlert = false
+    var body: some View {
+        VStack {
+            Button(action: {
+                isShowAlert = true
+            }){
+                Text("アラートを表示")
+            }.alert("削除の確認", isPresented: $isShowAlert) {
+                Button("削除する", role: .destructive) {
+                    // ボタン押下時の処理
+                }
+                Button("バックアップ作成") {
+                    // ボタン押下時の処理
+                }
+                Button("やめておく", role: .cancel) {
+                    // ボタン押下時の処理
+                }
+            } message: {
+                Text("本当に削除しますか？")
+            }
+        }
+    }
+}
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+
+
+## 確認ダイアログ
+
+### ●確認ダイアログ
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var isShowDialog = false // 1
+    var body: some View {
+        VStack {
+            Button(action: {
+                isShowDialog = true // 2
+            }){
+                Text("ダイアログを表示")
+            }.confirmationDialog("削除の確認",
+                                 isPresented: $isShowDialog,
+                                 titleVisibility: .visible) { // 3
+                Button("削除する", role: .destructive) {
+                    // ボタン押下時の処理
+                }
+                Button("バックアップ作成") {
+                    // ボタン押下時の処理
+                }
+                Button("やめておく", role: .cancel) {
+                    // ボタン押下時の処理
+                }
+            } message: {
+                Text("本当に削除しますか？")
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+### ●タイトル非表示
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var isShowDialog = false
+    var body: some View {
+        VStack {
+            Button(action: {
+                isShowDialog = true
+            }){
+                Text("ダイアログを表示")
+            }.confirmationDialog("削除の確認",
+                                 isPresented: $isShowDialog,
+                                 titleVisibility: .hidden) {
+                Button("ボタン１") {
+                    // ボタン押下時の処理
+                }
+                Button("ボタン２") {
+                    // ボタン押下時の処理
+                }
+            } message: {
+                Text("本当に削除しますか？")
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+## ポップオーバー
+
+### ●ポップオーバー
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var isShowPopover = false // 1
+    var body: some View {
+        VStack {
+            Button(action: { // 2
+                isShowPopover = true
+            }){
+                Text("ポップオーバーを表示")
+            }.popover(isPresented: $isShowPopover) { // 3
+                Text("ポップオーバー")
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+### ●コンテンツを入れる
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var isShowPopover = false
+    var body: some View {
+        VStack {
+            Button(action: {
+                isShowPopover = true
+            }){
+                Text("商品一覧を表示")
+            }.popover(isPresented: $isShowPopover) {
+                VStack{ // 1
+                    Text("商品一覧")
+                        .font(.title)
+                    List {
+                        Section(header: Text("文房具")) {
+                            Text("鉛筆")
+                            Text("消しゴム")
+                            Text("定規")
+                            
+                        }
+                        Section(header: Text("家電")) {
+                            Text("エアコン")
+                            Text("洗濯機")
+                            Text("冷蔵庫")
+                        }
+                    }
+                    Button("閉じる") { // 2
+                        isShowPopover = false
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+
+# 第４章　画面遷移
+
+## ナビゲーション
+
+### ●基本
+
+import SwiftUI
+
+struct DetailView: View { // 1
+    var body: some View {
+        Text("DetailViewの画面")
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            NavigationView{ // 2
+                NavigationLink("DetailViewへ",destination: DetailView())
+            }
+            NavigationStack{ // 3
+                NavigationLink("DetailViewへ",destination: DetailView())
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+### ●navigationDestinationモディファイア
+
+import SwiftUI
+
+struct DetailView: View {
+    var description: String
+    var body: some View {
+        VStack{
+            Text("DetailViewの画面")
+            Text("説明：\(description)")
+        }
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        NavigationStack{
+            VStack{ // 1
+                NavigationLink("商品A", value: "商品Aの詳細データ") // 2
+            }.navigationDestination(for: String.self) { data in // 3
+                DetailView(description: data)
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+### ●Listビューを使う
+
+import SwiftUI
+
+struct DetailView: View {
+    var description: String
+    var body: some View {
+        VStack{
+            Text("DetailViewの画面")
+            Text("説明：\(description)")
+        }
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        NavigationStack{
+            List{
+                NavigationLink("商品A", value: "商品Aの詳細データ")
+                NavigationLink("商品B", value: "商品Bの詳細データ")
+                NavigationLink("商品C", value: "商品Cの詳細データ")
+            }.navigationDestination(for: String.self) { data in
+                DetailView(description: data)
+            }
+        }
+        
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+### ●タイトルの表示モード
+
+import SwiftUI
+
+struct DetailView: View {
+    var description: String
+    var body: some View {
+        VStack{
+            Text("DetailViewの画面")
+            Text("説明：\(description)") // 2
+        }
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        NavigationStack{
+            List{
+                NavigationLink("商品A", value: "商品Aの詳細データ")
+                NavigationLink("商品B", value: "商品Bの詳細データ")
+                NavigationLink("商品C", value: "商品Cの詳細データ")
+            }
+            .navigationTitle("商品一覧")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: String.self) { data in
+                DetailView(description: data)
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+### ●応用編
+
+#### ・Listビューをループで表示
+
+import SwiftUI
+
+struct DetailView: View {
+    var description: String
+    var body: some View {
+        VStack{
+            Text("DetailViewの画面")
+            Text("説明：\(description)")
+        }
+    }
+}
+
+struct Product: Identifiable {
+    var id = UUID()
+    var name : String
+    var description : String
+}
+
+struct ContentView: View {
+    let products = [ Product(name: "商品A", description: "商品Aの詳細データ"),
+                     Product(name: "商品B", description: "商品Bの詳細データ"),
+                     Product(name: "商品C", description: "商品Cの詳細データ") ]
+    var body: some View {
+        NavigationStack{
+            List(products){ product in
+                NavigationLink(product.name, value: product.description)
+            }.navigationDestination(for: String.self) { data in
+                DetailView(description: data)
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+#### ・遷移先ビューの分岐
+
+import SwiftUI
+
+struct DetailView: View {
+    var description: String
+    var body: some View {
+        VStack{
+            Text("DetailViewの画面")
+            Text("説明：\(description)")
+        }
+    }
+}
+
+struct ErrorView: View {
+    var body: some View {
+        Text("ErrorViewの画面")
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        NavigationStack{
+            List{
+                NavigationLink("Aさん", value: 90)
+                NavigationLink("Bさん", value: 50)
+                NavigationLink("Cさん", value: 200)
+            }.navigationDestination(for: Int.self) { score in
+                switch score {
+                case 80...100:
+                    DetailView(description: "合格")
+                case 0..<80:
+                    DetailView(description: "不合格")
+                default :// 範囲外はErrorView
+                    ErrorView()
+                }
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+### ●isPresentedによる表示
+import SwiftUI
+
+struct FirstView: View { // 1
+    var body: some View {
+        Text("FirstViewの画面")
+    }
+}
+struct SecondView: View {
+    var body: some View {
+        Text("SecondViewの画面")
+    }
+}
+struct ContentView: View {
+    @State var isShowFirstView = false // 2
+    @State var isShowSecondView = false
+    var body: some View {
+        NavigationStack{
+            VStack {
+                Button("FirstViewの画面へ") { // 3
+                    isShowFirstView = true
+                }
+                Button("SecondViewの画面へ") {
+                    isShowSecondView = true
+                    
+                }
+            }.navigationDestination(isPresented: $isShowFirstView) { // 4
+                FirstView()
+            }.navigationDestination(isPresented: $isShowSecondView) {
+                SecondView()
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+## シート/戻り止め
+
+### ●シート
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var isShowSheet = false // 1
+    var body: some View {
+        VStack {
+            Button("シートを表示") { // 3
+                isShowSheet = true
+            }
+        }.sheet(isPresented: $isShowSheet) { // 2
+            VStack{
+                Text("シートの画面")
+                Button("閉じる") { // 4
+                    isShowSheet = false
+                }
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+### ●戻り止め
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var isShowSheet = false
+    var body: some View {
+        VStack {
+            Button("シートを表示") {
+                isShowSheet = true
+            }
+        }.sheet(isPresented: $isShowSheet) {
+            VStack{
+                Text("シートの画面")
+                Button("閉じる") {
+                    isShowSheet = false
+                }
+            }.presentationDetents([.medium])
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+## タブ
+
+### ●基本
+
+import SwiftUI
+
+struct HomeView: View {
+    var body: some View {
+        Text("HomeViewの画面")
+    }
+}
+struct NoteView: View {
+    var body: some View {
+        Text("NoteViewの画面")
+    }
+}
+struct MailView: View {
+    var body: some View {
+        Text("MailViewの画面")
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        TabView { // 1
+            HomeView() // 2
+                .tabItem { // 3
+                    Label("ホーム", systemImage: "house.fill")
+                }
+            NoteView()
+                .tabItem {
+                    Label("ノート", systemImage: "note.text")
+                }
+            MailView()
+                .tabItem {
+                    Label("メール", systemImage: "mail.fill")
+                }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+### ●バッジ
+
+import SwiftUI
+
+struct HomeView: View {
+    var body: some View {
+        Text("HomeViewの画面")
+    }
+}
+struct NoteView: View {
+    var body: some View {
+        Text("NoteViewの画面")
+    }
+}
+struct MailView: View {
+    var body: some View {
+        Text("MailViewの画面")
+    }
+}
+
+struct ContentView: View {
+    var noteMsg = "あいうえおかきくけこ"
+    var mailNum = 5
+    var body: some View {
+        TabView {
+            HomeView()
+                .tabItem {
+                    Label("ホーム", systemImage: "house.fill")
+                }
+            NoteView()
+                .tabItem {
+                    Label("ノート", systemImage: "note.text")
+                }
+                .badge(noteMsg)
+            MailView()
+                .tabItem {
+                    Label("メール", systemImage: "mail.fill")
+                }
+                .badge(mailNum)
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+### ●スワイプ
+
+import SwiftUI
+
+struct HomeView: View {
+    var body: some View {
+        Text("HomeViewの画面")
+    }
+}
+struct NoteView: View {
+    var body: some View {
+        Text("NoteViewの画面")
+    }
+}
+struct MailView: View {
+    var body: some View {
+        Text("MailViewの画面")
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        TabView {
+            HomeView()
+            NoteView()
+            MailView()
+        }
+        .tabViewStyle(.page)
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+#### ・インジゲーター
+
+import SwiftUI
+
+struct HomeView: View {
+    var body: some View {
+        Text("HomeViewの画面")
+    }
+}
+struct NoteView: View {
+    var body: some View {
+        Text("NoteViewの画面")
+    }
+}
+struct MailView: View {
+    var body: some View {
+        Text("MailViewの画面")
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        TabView {
+            HomeView()
+            NoteView()
+            MailView()
+        }
+        .tabViewStyle(.page)
+        .indexViewStyle(.page(backgroundDisplayMode: .always))
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+#### ・シンボルフォント
+
+import SwiftUI
+
+struct HomeView: View {
+    var body: some View {
+        Text("HomeViewの画面")
+    }
+}
+struct NoteView: View {
+    var body: some View {
+        Text("NoteViewの画面")
+    }
+}
+struct MailView: View {
+    var body: some View {
+        Text("MailViewの画面")
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        TabView {
+            HomeView()
+                .tabItem {
+                    Image(systemName: "house.fill")
+                }
+            NoteView()
+                .tabItem {
+                    Image(systemName: "note.text")
+                }
+            MailView()
+                .tabItem {
+                    Image(systemName: "mail.fill")
+                }
+        }
+        .tabViewStyle(.page)
+        .indexViewStyle(.page(backgroundDisplayMode: .always))
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+### ●セレクション(下の「もう少し、活用」の方)
+
+import SwiftUI
+
+struct HomeView: View {
+    var body: some View {
+        Text("HomeViewの画面")
+    }
+}
+struct NoteView: View {
+    var body: some View {
+        Text("NoteViewの画面")
+    }
+}
+struct MailView: View {
+    var body: some View {
+        Text("MailViewの画面")
+    }
+}
+
+struct ContentView: View {
+    @State var selection = 1
+    var body: some View {
+        VStack{
+            Text("現在のタグ値：\(selection)") // 1
+            Button("ホームへ") { // 2
+                selection = 0
+            }
+            TabView(selection: $selection) {
+                HomeView()
+                    .tabItem {
+                        Label("ホーム", systemImage: "house.fill")
+                    }
+                    .tag(0)
+                NoteView()
+                    .tabItem {
+                        Label("ノート", systemImage: "note.text")
+                    }
+                    .tag(1)
+                MailView()
+                    .tabItem {
+                        Label("メール", systemImage: "mail.fill")
+                    }
+                    .tag(2)
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+# 第５章　プロパティラッパー
+
+## @Binding
+
+### ●エラーになる例
+
+import SwiftUI
+// このコードはエラーになります（説明用コード）
+struct SheetView: View { // 1
+    var body: some View {
+        VStack{
+            Text("シートの画面")
+            Button("閉じる") {
+                isShowSheet = false
+            }
+        }
+    }
+}
+
+struct ContentView: View {
+    @State var isShowSheet = false
+    var body: some View {
+        VStack {
+            Button("シートを表示") {
+                isShowSheet = true
+            }
+        }.sheet(isPresented: $isShowSheet) {
+            SheetView() // 2
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+### ●@Binding
+
+import SwiftUI
+
+struct SheetView: View {
+    @Binding var isShowSheet:Bool // 1
+    var body: some View {
+        VStack{
+            Text("シートの画面")
+            Button("閉じる") {
+                isShowSheet = false // 3
+            }
+        }
+    }
+}
+
+struct ContentView: View {
+    @State var isShowSheet = false
+    var body: some View {
+        VStack {
+            Button("シートを表示") {
+                isShowSheet = true
+            }
+        }.sheet(isPresented: $isShowSheet) {
+            SheetView(isShowSheet: $isShowSheet) // 2
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+## @ObservedObject
+
+### ●@ObservedObject
+
+import SwiftUI
+
+class Order : ObservableObject { // 1
+    @Published var hotNum = 0 // 2
+    @Published var iceNum = 0
+}
+struct HotView: View {
+    @Binding var hotNum:Int // 1
+    var body: some View {
+        Stepper(value: $hotNum) { // 2
+            Text("(HotView)ホットの数:\(hotNum)")
+        }
+        .fixedSize()
+    }
+}
+
+struct IceView: View { // 3
+    @Binding var iceNum:Int
+    var body: some View {
+        Stepper(value: $iceNum) {
+            Text("(IceView)アイスの数:\(iceNum)")
+        }
+        .fixedSize()
+    }
+}
+
+struct ContentView: View {
+    @ObservedObject var order = Order() // 1
+    var body: some View {
+        VStack {
+            HotView(hotNum: $order.hotNum) // 2
+            IceView(iceNum: $order.iceNum)
+            Text("合計\(order.hotNum +  order.iceNum)") // 3
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+## @StateObject
+
+### ●@StateObject
+
+/* ---------------------------------------
+【@StateObjectの場合】の方のコードとなります。
+
+【@ObservedObjectの場合】を試す場合は
+//@ObservedObject var order = Order()
+@StateObject var order = Order()
+のコメントアウトを入れ替えて下さい。
+--------------------------------------- */
+
+import SwiftUI
+
+class Order : ObservableObject {
+    @Published var hotNum = 0
+    @Published var iceNum = 0
+}
+
+struct HotView: View {
+    @Binding var hotNum:Int
+    var body: some View {
+        Stepper(value: $hotNum) {
+            Text("(HotView)ホットの数:\(hotNum)")
+        }
+        .fixedSize()
+    }
+}
+
+struct IceView: View {
+    @Binding var iceNum:Int
+    var body: some View {
+        Stepper(value: $iceNum) {
+            Text("(IceView)アイスの数:\(iceNum)")
+        }
+        .fixedSize()
+    }
+}
+
+struct CoffeeView: View {
+    //@ObservedObject var order = Order()
+    @StateObject var order = Order()
+    var body: some View {
+        VStack {
+            HotView(hotNum: $order.hotNum)
+            IceView(iceNum: $order.iceNum)
+            Text("合計\(order.hotNum +  order.iceNum)")
+        }
+    }
+}
+
+struct ContentView: View {
+    @State var count = 0 // 2
+    var body: some View {
+        VStack {
+            CoffeeView() // 1
+            Button("カウント\(count)") { count = count + 1} // 3
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+## @EnvironmentObject
+
+### ●EnvironmentObjectを使う
+
+#### ・environmentObjectモディファイア
+
+// TestApp.swift
+import SwiftUI
+
+@main
+struct TestApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environmentObject(Todo()) // 追加
+        }
+    }
+}
+
+#### ・ContentView
+
+// ContentView.swift
+import SwiftUI
+
+class Todo: ObservableObject {
+    @Published var task = "今月まで"
+}
+
+struct ArtView: View {
+    var body: some View {
+        VStack{
+            Text("【ArtView】")
+            ModernView()
+        }
+    }
+}
+
+struct ModernView: View {
+    @EnvironmentObject var todo: Todo // 1
+    var body: some View {
+        VStack{
+            Text("【ModernView】タスク:\(todo.task)") // 2
+            TextField("タスクを入力", text: $todo.task) // 3
+        }
+    }
+}
+
+struct ContentView: View {
+    @EnvironmentObject var todo: Todo // 1
+    var body: some View {
+        VStack {
+            Text("【ContentView】タスク:\(todo.task)") // 2
+            ArtView() // 3
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .environmentObject(Todo()) // 追加
+    }
+}
+
+
+## UserDefaults
+
+import SwiftUI
+
+struct ContentView: View {
+    @State var isNotice = UserDefaults.standard.bool(forKey: "isNotice") //1
+    var body: some View {
+        Toggle(isNotice ? "通知する" : "通知しない", isOn: $isNotice) // 2
+            .onChange(of: isNotice) { newValue in // 3
+                UserDefaults.standard.set(newValue, forKey: "isNotice") // 4        }
+            }
+            .fixedSize()
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+## @AppStorage
+
+import SwiftUI
+
+struct ContentView: View {
+    @AppStorage("isNotice") var isNotice = false
+    var body: some View {
+        Toggle(isNotice ? "通知する" : "通知しない", isOn: $isNotice)
+            .fixedSize()
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+## @SceneStorage
+
+### 『@SceneStorageを使わない』パターン
+
+import SwiftUI
+
+struct MemoView: View {
+    @State var memo1 = ""
+    @State var memo2 = ""
+    var body: some View {
+        VStack{
+            Text("memo1:\(memo1)")
+            Text("memo2:\(memo2)")
+            TextField("memo1の入力欄",text: $memo1)
+            TextField("memo2の入力欄",text: $memo2)
+        }.padding()
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        NavigationStack{
+            VStack{
+                NavigationStack{
+                    NavigationLink("MemoViewへ",destination: MemoView())
+                }
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+### 『@SceneStorageを使う』パターン
+
+import SwiftUI
+
+struct MemoView: View {
+    @SceneStorage("memo1") var memo1 = ""
+    @SceneStorage("memo2") var memo2 = ""
+    var body: some View {
+        VStack{
+            Text("memo1:\(memo1)")
+            Text("memo2:\(memo2)")
+            TextField("memo1の入力欄",text: $memo1)
+            TextField("memo2の入力欄",text: $memo2)
+        }.padding()
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        NavigationStack{
+            VStack{
+                NavigationStack{
+                    NavigationLink("MemoViewへ",destination: MemoView())
+                }
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+# 第７章　地図(SwiftUIのMap構造体)
+## 地図を表示する
+
+import SwiftUI
+import MapKit // 1
+
+struct ContentView: View {
+    @State var region = MKCoordinateRegion( // 2
+        center: CLLocationCoordinate2D( // 2-1
+            latitude: 35.67604049,
+            longitude: 139.74527642
+                                      ),
+        span: MKCoordinateSpan( // 2-2
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.015
+                              )
+    )
+    
+    var body: some View {
+        Map(coordinateRegion: $region) // 3
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+## アノテーションを付ける
+
+import SwiftUI
+import MapKit
+
+struct Place: Identifiable { // 1
+    let id: UUID // 1-1
+    let location: CLLocationCoordinate2D // 1-2
+    init(id: UUID = UUID(), lat: Double, lng: Double) { // 2
+        self.id = id
+        self.location = CLLocationCoordinate2D(
+            latitude: lat,
+            longitude: lng)
+    }
+}
+
+struct ContentView: View {
+    let places = [  Place(lat: 35.67856032, lng:  139.74473264), // 1
+                    Place(lat: 35.67472680, lng:  139.74024288),
+                    Place(lat: 35.67860561,  lng: 139.74016657) ]
+    
+    @State var region = MKCoordinateRegion( // 2
+        center: CLLocationCoordinate2D(
+            latitude: 35.67604049,
+            longitude: 139.74527642
+        ),
+        span: MKCoordinateSpan(
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.015
+        )
+    )
+    
+    var body: some View {
+        Map( coordinateRegion: $region, // 3
+             annotationItems: places // 4 4-1
+        ) { place in // 4-2
+            MapAnnotation(coordinate: place.location) { // 4-3
+                Circle() // 4-4
+                    .fill(Color.blue)
+                    .frame(width:20, height: 20)
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+## アノテーションに名前を付ける
+
+import SwiftUI
+import MapKit
+
+struct Place: Identifiable {
+    let id: UUID
+    let location: CLLocationCoordinate2D
+    let name: String // 1
+    init(id: UUID = UUID(), lat: Double, lng: Double, name: String) { // 1-1
+        self.id = id
+        self.location = CLLocationCoordinate2D(
+            latitude: lat,
+            longitude: lng)
+        self.name = name // 1-2
+    }
+}
+
+struct ContentView: View {
+    let places = [  Place(lat: 35.67856032, lng:  139.74473264, name: "国立国会図書館"), // 1
+                    Place(lat: 35.67472680, lng:  139.74024288, name: "日枝神社"),
+                    Place(lat: 35.67860561,  lng: 139.74016657, name: "永田町駅") ]
+    
+    @State var region = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(
+            latitude: 35.67604049,
+            longitude: 139.74527642
+        ),
+        span: MKCoordinateSpan(
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.015
+        )
+    )
+    
+    var body: some View {
+        Map( coordinateRegion: $region,
+             annotationItems: places
+        ) { place in
+            MapAnnotation(coordinate: place.location) {
+                Circle()
+                    .fill(Color.blue)
+                    .frame(width:20, height: 20)
+                Text(place.name) // 2
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+# 第８章　地図(UIKitのMKMapViewクラス)
+
+## 地図を表示する
+
+import SwiftUI
+import MapKit // 1
+
+struct MapView: UIViewRepresentable { // 2
+    public func makeUIView(context: Context) -> MKMapView { // 3
+        return MKMapView() // 4
+    }
+    
+    public func updateUIView(_ uiView: MKMapView, context: Context) { // 5
+        
+    }
+}
+struct ContentView: View {
+    var body: some View {
+        MapView() // 6
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+## 座標領域の指定
+
+import SwiftUI
+import MapKit
+
+struct MapView: UIViewRepresentable {
+    let region: MKCoordinateRegion // 1
+    public func makeUIView(context: Context) -> MKMapView {
+        let mapView = MKMapView() // 2
+        mapView.region = region // 3
+        return mapView
+    }
+    
+    public func updateUIView(_ uiView: MKMapView, context: Context) {}
+}
+
+struct ContentView: View {
+    let region = MKCoordinateRegion( // 1
+        center: CLLocationCoordinate2D(
+            latitude: 35.67604049,
+            longitude: 139.74527642
+        ),
+        span: MKCoordinateSpan(
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.015
+        )
+    )
+    
+    var body: some View {
+        MapView(region: region) // 2
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+## アノテーションを追加する
+
+import SwiftUI
+import MapKit
+
+struct MapView: UIViewRepresentable {
+    let region: MKCoordinateRegion // 地図の座標領域
+    let lat: Double // アノテーションの緯度
+    let lng: Double // アノテーションの経度
+    let name: String // アノテーションの名前
+    
+    func makeUIView(context: Context) -> MKMapView {
+        let mapView = MKMapView() // 1
+        let annotation = MKPointAnnotation() // 2
+        
+        mapView.region = region // 1-1
+
+        annotation.coordinate = CLLocationCoordinate2D( // 2-1
+            latitude: lat,
+            longitude: lng)
+        annotation.title = name // 2-2
+        mapView.addAnnotation(annotation) // 2-3
+        
+        return mapView
+    }
+    
+    func updateUIView(_ uiView: MKMapView, context: Context) { // 3
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = CLLocationCoordinate2D(
+            latitude: lat,
+            longitude: lng)
+        annotation.title = name
+        
+        uiView.addAnnotation(annotation) // 3-1
+    }
+}
+
+struct ContentView: View {
+    let region = MKCoordinateRegion( // 1
+        center: CLLocationCoordinate2D(
+            latitude: 35.67604049,
+            longitude: 139.74527642
+        ),
+        span: MKCoordinateSpan(
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.015
+        )
+    )
+    
+    @State var lat = 35.67860561 // 2
+    @State var lng =  139.74016657
+    @State var name = "永田町駅"
+    
+    var body: some View {
+        VStack{
+            MapView(region: region, // 3
+                    lat: lat,
+                    lng: lng,
+                    name: name)
+            Button(action: { // 4
+                lat = 35.67856032
+                lng =  139.74473264
+                name = "国立国会図書館"
+            }){
+                Text("ボタン")
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+# 第９章　カメラ
+
+## カメラビューの雛形を作成する
+
+import SwiftUI
+
+struct CameraView: View {
+    @Binding var isShowCamera: Bool
+    var body: some View {
+        VStack{
+            Text("カメラのビュー")
+            Button("カメラを閉じる") {
+                isShowCamera = false
+            }
+        }
+    }
+}
+
+struct ContentView: View {
+    @State var isShowCamera = false
+    var body: some View {
+        VStack{
+            Button("カメラを表示") {
+                isShowCamera = true
+            }
+            .sheet(isPresented: $isShowCamera) {
+                CameraView(isShowCamera: $isShowCamera)
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+## カメラを起動する
+
+import SwiftUI
+
+struct CameraView: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let controller = UIImagePickerController()
+        controller.sourceType = .camera
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController,
+                                context: Context) {
+    }
+}
+
+struct ContentView: View {
+    @State var isShowCamera = false
+    var body: some View {
+        VStack{
+            Button("カメラを表示") {
+                isShowCamera = true
+            }
+            .padding()
+            .sheet(isPresented: $isShowCamera) {
+                CameraView()
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+## 撮影画像を取得する
+
+import SwiftUI
+
+struct CameraView: UIViewControllerRepresentable {
+    @Binding var isShowCamera: Bool
+    @Binding var image: UIImage
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let controller = UIImagePickerController()
+        controller.sourceType = .camera
+        controller.delegate = context.coordinator // makeCoordinator()で返したインスタンスが格納されている
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController,
+                                context: Context) {
+    }
+    
+    func makeCoordinator() -> Coodinator {
+        return Coordinator(parent: self)
+    }
+    
+    class Coodinator: NSObject, // 1 1-1
+                      UIImagePickerControllerDelegate, // 1-2
+                      UINavigationControllerDelegate { // 1-3
+        let parent: CameraView // 2
+        
+        init(parent: CameraView){ // 2-1
+            self.parent = parent
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { // 3
+            self.parent.isShowCamera = false
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, // 4 4-1
+                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) { // 4-2
+            if let image = info[.originalImage] as? UIImage{ // 4-3
+                self.parent.image = image
+            }
+            self.parent.isShowCamera = false // 4-4
+        }
+    }
+}
+
+struct ContentView: View {
+    @State var image = UIImage() // 1
+    @State var isShowCamera = false
+    var body: some View {
+        VStack{
+            Image(uiImage: image) // 2
+                .resizable(resizingMode: .stretch) // 2-1
+                .aspectRatio(contentMode: .fit) // 2-2
+            Divider() // 3
+            Button("カメラを表示") {
+                isShowCamera = true
+            }
+            .padding()
+            .sheet(isPresented: $isShowCamera) {
+                CameraView(
+                    isShowCamera: $isShowCamera,
+                    image: $image // 1
+                )
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+
+# 第１０章　実機テスト
+
+## アプリのアイコン
+
+### ●コードを用意
+
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        Text("アプリ")
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+
+# 第１１章　外部データを取得する
+
+## モデルの作成
+
+// UserModel.swift 
+import Foundation
+struct User: Identifiable {
+    var id = UUID()
+    var userid: Int
+    var name: String
+}
+
+
+## ビューモデルの作成
+
+// UserViewModel.swift 
+import Foundation
+
+struct JsonData: Codable {
+    var id: Int
+    var name: String
+}
+
+class UserViewModel: ObservableObject {
+    @Published var users = [User]()
+    var jsondatas = [JsonData]()
+    func fetchData() async {
+        do {
+            guard let url = URL(string: "https://jsonplaceholder.typicode.com/users") else { return }
+            let (data, _) = try await URLSession.shared.data(from: url)
+            jsondatas = try JSONDecoder().decode([JsonData].self, from: data)
+            
+            for item in self.jsondatas {
+                let user = User(userid: item.id,name: item.name)
+                self.users.append(user)
+            }
+            
+        } catch {
+            print("例外時の処理")
+        }
+    }
+}
+
+
+## ビューの作成
+
+// ContentView.swift
+
+import SwiftUI
+
+struct ContentView: View {
+    @StateObject var dataViewModel = UserViewModel()
+    
+    var body: some View {
+        VStack{
+            List(dataViewModel.users) {user in
+                HStack{
+                    Text(String(user.userid))
+                    Divider()
+                    Text(user.name)
+                }
+            }.task{
+                await dataViewModel.fetchData()
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+## メインスレッドで処理をする
+
+// UserViewModel.swift 
+import Foundation
+
+struct JsonData: Codable {
+    var id: Int
+    var name: String
+}
+class UserViewModel: ObservableObject {
+    @Published var users = [User]()
+    var jsondatas = [JsonData]()
+    func fetchData() async {
+        do {
+            guard let url = URL(string: "https://jsonplaceholder.typicode.com/users") else { return }
+            let (data, _) = try await URLSession.shared.data(from: url)
+            jsondatas = try JSONDecoder().decode([JsonData].self, from: data)
+            DispatchQueue.main.async {
+                for item in self.jsondatas {
+                    let user = User(userid: item.id,name: item.name)
+                    self.users.append(user)
+                }
+            }
+        } catch {
+            print("例外時の処理")
+        }
+    }
+}
+
+
+
+
